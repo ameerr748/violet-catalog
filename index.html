@@ -71,8 +71,8 @@ header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #
       <button class="tab" data-cat="bag_c">👝 الحقائب الصغيرة</button>
       <button class="tab" data-cat="wallets">👛 الجوزدانات</button>
       <button class="tab" data-cat="mattresses">🛏️ الفرشات</button>
-      <button class="tab" data-cat="glasses">🕶️ نظارات كورية</button>
-      <button class="tab" data-cat="scarves">🧣 شالات أحجبة</button>
+      
+      <button class="tab" data-cat="accessories">🕶️🧣 نظارات كورية وشالات أحجبة</button>
     </div>
 
     <div id="sizebar" class="sizebar"></div>
@@ -194,7 +194,7 @@ function updateUrl(){
 function readUrl(){
   const u=new URL(window.location.href);
   const wanted=u.searchParams.get('section');
-  cat=['all','shoes','clothes','bag_a','bag_c','wallets','mattresses','glasses','scarves'].includes(wanted)?wanted:'all';
+  cat=['all','shoes','clothes','bag_a','bag_c','wallets','mattresses','accessories'].includes(wanted)?wanted:'all';
   selectedSize=u.searchParams.get('size')||'';
   if(cat!=='shoes' && cat!=='clothes') selectedSize='';
 }

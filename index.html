@@ -65,7 +65,8 @@ header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #
 
     <div class="toolbar">
       <button class="tab active" data-cat="all">الكل</button>
-      <button class="tab" data-cat="shoes">👟 الأحذية بالقياسات</button>
+      <button class="tab" data-cat="shoes_first">👟 أحذية الشحنة الأولى</button>
+      <button class="tab" data-cat="shoe_discount">👟 تخفيضات الأحذية 28 ألف</button>
       <button class="tab" data-cat="clothes">👚 الملابس بالقياسات</button>
       <button class="tab" data-cat="bag_a">👜 الحقائب الكبيرة</button>
       <button class="tab" data-cat="bag_c">👝 الحقائب الصغيرة</button>
@@ -117,6 +118,8 @@ const sectionHint=document.getElementById('sectionHint');
 const labels={
   all:'كل المنتجات',
   shoes:'الأحذية بالقياسات',
+  shoes_first:'أحذية الشحنة الأولى',
+  shoe_discount:'تخفيضات الأحذية 28 ألف',
   clothes:'الملابس بالقياسات',
   bag_a:'الحقائب الكبيرة',
   bag_c:'الحقائب الصغيرة',
@@ -172,8 +175,8 @@ products=products.map(p=>({...p,category:normalizeCategory(p)}));
 document.getElementById('fb').href=settings.facebook||'#';
 
 function availableSizes(currentCat){
-  const vals=[...new Set(products.filter(p=>normalizeCategory(p)===currentCat && p.size!=null).map(p=>String(p.size).trim()).filter(Boolean))];
-  const order=currentCat==='shoes'?shoeOrder:clothesOrder;
+  const vals=[...new Set(products.filter(p=>(currentCat==='shoe_discount'?normalizeCategory(p)==='shoes':normalizeCategory(p)===currentCat) && p.size!=null).map(p=>String(p.size).trim()).filter(Boolean))];
+  const order=currentCat==='shoe_discount'?shoeOrder:clothesOrder;
   return [...vals].sort((a,b)=>{
     const ia=order.indexOf(a),ib=order.indexOf(b);
     if(ia<0 && ib<0) return a.localeCompare(b,'en',{numeric:true});
@@ -186,7 +189,7 @@ function availableSizes(currentCat){
 function updateUrl(){
   const u=new URL(window.location.href);
   if(cat==='all') u.searchParams.delete('section'); else u.searchParams.set('section',cat);
-  if((cat==='shoes'||cat==='clothes') && selectedSize) u.searchParams.set('size',selectedSize);
+  if((cat==='shoe_discount'||cat==='clothes') && selectedSize) u.searchParams.set('size',selectedSize);
   else u.searchParams.delete('size');
   history.replaceState({},'',u);
 }
@@ -194,14 +197,14 @@ function updateUrl(){
 function readUrl(){
   const u=new URL(window.location.href);
   const wanted=u.searchParams.get('section');
-  cat=['all','shoes','clothes','bag_a','bag_c','wallets','mattresses','accessories'].includes(wanted)?wanted:'all';
+  cat=['all','shoes','shoes_first','shoe_discount','clothes','bag_a','bag_c','wallets','mattresses','accessories'].includes(wanted)?wanted:'all';
   selectedSize=u.searchParams.get('size')||'';
-  if(cat!=='shoes' && cat!=='clothes') selectedSize='';
+  if(cat!=='shoe_discount' && cat!=='clothes') selectedSize='';
 }
 
 function renderSizeBar(){
   sizebar.innerHTML='';
-  if(cat!=='shoes' && cat!=='clothes'){
+  if(cat!=='shoe_discount' && cat!=='clothes'){
     sizebar.classList.remove('show');
     return;
   }
@@ -257,20 +260,23 @@ async function copySizeLink(){
 function matches(p){
   const c=normalizeCategory(p);
   if(cat==='all') return true;
-  if(c!==cat) return false;
-  if((cat==='shoes'||cat==='clothes') && selectedSize){
-    return String(p.size||'').trim()===selectedSize;
+  if(cat==='accessories') return c==='glasses'||c==='scarves';
+  if(cat==='shoes_first') return c==='shoes' && p.shipment===1 && p.price==null && !p.size;
+  if(cat==='shoe_discount'){
+    if(c!=='shoes' || p.shipment!==2 || Number(p.price)!==28000) return false;
+    return !selectedSize || String(p.size||'').trim()===selectedSize;
   }
+  if(cat==='clothes' && selectedSize) return c==='clothes' && String(p.size||'').trim()===selectedSize;
+  if(c!==cat) return false;
   return true;
 }
-
 function render(){
   renderSizeBar();
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
   sectionTitle.textContent=cat==='all'?'كل المنتجات':(labels[cat]||cat);
-  sectionHint.textContent=(cat==='shoes'||cat==='clothes')
+  sectionHint.textContent=(cat==='shoe_discount'||cat==='clothes')
     ? (selectedSize?'عرض '+labels[cat]+' — قياس '+selectedSize:'اختاري القياس المطلوب لفتح رابط مستقل ومشاركته')
-    : '';
+    : (cat==='shoes_first'?'الشحنة الأولى — بدون أسعار وبدون قياسات':'');
 
   const q=search.value.trim().toLowerCase();
   const arr=products.filter(p=>matches(p) && (!q || String(p.code||'').toLowerCase().includes(q) || String(p.label||'').toLowerCase().includes(q)));

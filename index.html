@@ -71,8 +71,8 @@ header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #
       <button class="tab" data-cat="bag_c">👝 الحقائب الصغيرة</button>
       <button class="tab" data-cat="wallets">👛 الجوزدانات</button>
       <button class="tab" data-cat="mattresses">🛏️ الفرشات</button>
-      <button class="tab" data-cat="glasses">🕶️ النظارات</button>
-      <button class="tab" data-cat="scarves">🧣 الشالات</button>
+      <button class="tab" data-cat="glasses">🕶️ نظارات كورية</button>
+      <button class="tab" data-cat="scarves">🧣 شالات أحجبة</button>
     </div>
 
     <div id="sizebar" class="sizebar"></div>
@@ -122,8 +122,8 @@ const labels={
   bag_c:'الحقائب الصغيرة',
   wallets:'الجوزدانات',
   mattresses:'الفرشات',
-  glasses:'النظارات',
-  scarves:'الشالات'
+  glasses:'نظارات كورية',
+  scarves:'شالات أحجبة'
 };
 
 const shoeOrder=['36','37','38','39','40','41'];
@@ -155,7 +155,7 @@ function normalizeCategory(p){
   if(rawCat.includes('wallet')||rawCat.includes('jewz')) return 'wallets';
   if(rawCat.includes('mattress')) return 'mattresses';
   if(rawCat.includes('glass')) return 'glasses';
-  if(rawCat.includes('scarf')) return 'scarves';
+  if(rawCat.includes('scarf')||rawCat.includes('hijab')||rawCat.includes('veil')||rawCat.includes('hijabscar')) return 'scarves';
 
   return p.category||'other';
 }

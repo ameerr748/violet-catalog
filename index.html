@@ -58,7 +58,7 @@ function category(p){const c=norm(p.category),path=norm((p.images||[]).join(' ')
 function image(p){return'images/'+String(p).split('/').map(encodeURIComponent).join('/').replaceAll('%2F','/')}
 function money(n){return Number(n).toLocaleString('ar-IQ')+' د.ع'}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function matches(p){const c=category(p);if(cat==='all')return true;if(cat==='shoes_first')return c==='shoes'&&Number(p.shipment)===1;if(cat==='shoe_discount')return c==='shoes'&&Number(p.shipment)===2&&Number(p.price)===28000&&(!size||String(p.size||'')===size);if(cat==='clothes_first')return c==='clothes'&&Number(p.shipment)===1;if(cat==='clothes_discount')return c==='clothes'&&Number(p.shipment)===2&&Number(p.price)===28000&&(!size||String(p.size||'')===size);if(cat==='bag_a_first')return c==='bag_a'&&Number(p.shipment)===1;if(cat==='bag_c_first')return c==='bag_c'&&Number(p.shipment)===1;if(cat==='bags_discount')return (c==='bag_a'||c==='bag_c')&&Number(p.shipment)===2&&((c==='bag_a'&&Number(p.price)===28000)||(c==='bag_c'&&Number(p.price)===25000));if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='wallets')return c==='wallets';if(cat==='accessories')return c==='accessories';return false}
+function matches(p){const c=category(p);if(cat==='all')return true;if(cat==='shoes_first')return c==='shoes'&&Number(p.shipment)===1;if(cat==='shoe_discount')return c==='shoes'&&Number(p.shipment)===2&&Number(p.price)===28000&&(!size||String(p.size||'')===size);if(cat==='clothes_first')return c==='clothes'&&Number(p.shipment)===1;if(cat==='clothes_discount')return c==='clothes'&&Number(p.shipment)===2&&Number(p.price)===28000&&(!size||String(p.size||'')===size);if(cat==='bag_a_first')return c==='bag_a'&&Number(p.shipment)===1;if(cat==='bag_c_first')return c==='bag_c'&&Number(p.shipment)===1;if(cat==='bags_discount')return (c==='bag_a'||c==='bag_c')&&Number(p.shipment)===2&&((c==='bag_a'&&Number(p.price)===28000)||(c==='bag_c'&&Number(p.price)===25000));if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='bags_all')return c==='bag_a'||c==='bag_c';if(cat==='wallets')return c==='wallets';if(cat==='accessories')return c==='accessories';return false}
 function setUrl(){const u=new URL(location.href);u.searchParams.set('cat',cat);if(size)u.searchParams.set('size',size);else u.searchParams.delete('size');history.replaceState(null,'',u.pathname+u.search)}
 function copySizeLink(){if(!size)return;const u=new URL(location.href);u.searchParams.set('cat',cat);u.searchParams.set('size',size);navigator.clipboard?.writeText(u.href);alert('تم نسخ رابط '+labels[cat]+' — '+size+'\nأرسليه للزبون.');}
 function copyCategoryLink(){const u=new URL(location.href);u.searchParams.set('cat',cat);u.searchParams.delete('size');navigator.clipboard?.writeText(u.href);alert('تم نسخ رابط قسم '+(labels[cat]||'المنتجات')+'\nأرسليه للزبون.');}
@@ -81,18 +81,11 @@ function updateSelectionBar(){
 function clearSelected(){selected.clear();updateSelectionBar();render()}
 function reservationText(address,sizeOverrides){
   const arr=[...selected.values()];
-  return 'السلام عليكم، أريد حجز المنتجات التالية من VIOLET للتسوق الإلكتروني:
-'+arr.map((p,i)=>{
+  return 'السلام عليكم، أريد حجز المنتجات التالية من VIOLET للتسوق الإلكتروني:\n'+arr.map((p,i)=>{
     const c=category(p), chosen=sizeOverrides&&sizeOverrides.get(p.code), sizeText=chosen?' | القياس المطلوب: '+chosen:'';
     const priceText=p.price?' | السعر: '+Number(p.price).toLocaleString('ar-IQ')+' د.ع':'';
     return (i+1)+'. الكود: '+(p.code||p.label||'بدون كود')+sizeText+priceText;
-  }).join('
-')+'
-
-عدد القطع: '+arr.length+(address?'
-العنوان: '+address:'')+'
-
-ملاحظة: القياسات اختيارية وتُرسل فقط للملابس والأحذية.';
+  }).join('\n')+'\n\nعدد القطع: '+arr.length+(address?'\nالعنوان: '+address:'')+'\n\nملاحظة: القياسات اختيارية وتُرسل فقط للملابس والأحذية.';
 }
 async function sendSelected(){
   if(!selected.size){alert('اختاري قطعة واحدة على الأقل.');return}
@@ -101,8 +94,7 @@ async function sendSelected(){
   [...selected.values()].forEach(p=>{
     const c=category(p);
     if(c==='shoes'||c==='clothes'){
-      const available=p.size?'
-القياسات المتوفرة: '+p.size:'';
+      const available=p.size?'\nالقياسات المتوفرة: '+p.size:'';
       const chosen=prompt('القياس المطلوب للمنتج '+(p.code||p.label||'')+' (اختياري):'+available,'');
       if(chosen&&chosen.trim()) sizeOverrides.set(p.code,chosen.trim());
     }

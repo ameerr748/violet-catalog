@@ -128,12 +128,13 @@ function render(){
     grid.innerHTML='<div class="empty"><b>لا توجد منتجات هنا</b><br>جرّبي قسمًا آخر أو امسحي البحث.</div>';
     renderPager(0); updateSelectionBar(); return;
   }
-  grid.innerHTML=shown.map((p,i)=>{
-    const idx=products.indexOf(p);
-    const chosen=selected.has(idx);
-    const first=image(p.images?.[0]||'');
-    return '<article class="card" onclick="openModal('+idx+')">'+
-      '<img class="thumb" loading="lazy" decoding="async" src="'+first+'" alt="'+esc(p.code||p.label||'منتج')+'" onerror="this.removeAttribute(\'src\');this.alt=\'الصورة غير متاحة\'">'+
+	grid.innerHTML=shown.map((p,i)=>{
+	    const idx=products.indexOf(p);
+	    const chosen=selected.has(idx);
+	    const first=image(p.images?.[0]||'');
+	    const loadMode=i<8?'eager':'lazy';
+	    return '<article class="card" onclick="openModal('+idx+')">'+
+	      '<img class="thumb" loading="'+loadMode+'" decoding="async" src="'+first+'" alt="'+esc(p.code||p.label||'منتج')+'" onerror="this.onerror=null;this.src=\'images/placeholder.svg\';this.alt=\'الصورة غير متاحة\'">'+
       '<div class="info">'+
       '<div class="code">الموديل: '+esc(p.code||p.label||'بدون كود')+'</div>'+
       (p.size?'<div class="meta">القياس: '+esc(p.size)+'</div>':'')+

@@ -117,6 +117,7 @@ function renderPager(total){
   html+='<button class="pagebtn" '+(page===pages?'disabled':'')+' onclick="goPage('+(page+1)+')">التالي</button>';
   pager.innerHTML=html;
 }
+function warmImages(items){items.slice(0,8).forEach(p=>{const u=image(p.images?.[0]||'');if(!u||u.endsWith('placeholder.svg'))return;const im=new Image();im.decoding='async';im.src=u})}
 function goPage(n){page=Math.max(1,n);render();window.scrollTo({top:0,behavior:'smooth'})}
 function render(){
   renderSizes();
@@ -132,9 +133,10 @@ function render(){
 	    const idx=products.indexOf(p);
 	    const chosen=selected.has(idx);
 	    const first=image(p.images?.[0]||'');
-	    const loadMode=i<8?'eager':'lazy';
+	    const loadMode='eager';
+	    const priority=i<8?' high':' low';
 	    return '<article class="card" onclick="openModal('+idx+')">'+
-	      '<img class="thumb" loading="'+loadMode+'" decoding="async" src="'+first+'" alt="'+esc(p.code||p.label||'منتج')+'" onerror="this.onerror=null;this.src=\'images/placeholder.svg\';this.alt=\'الصورة غير متاحة\'">'+
+	      '<img class="thumb" loading="'+loadMode+'" fetchpriority="'+priority.trim()+'" decoding="async" src="'+first+'" alt="'+esc(p.code||p.label||'منتج')+'" onerror="this.onerror=null;this.src=\'images/placeholder.svg\';this.alt=\'الصورة غير متاحة\'">'+
       '<div class="info">'+
       '<div class="code">الموديل: '+esc(p.code||p.label||'بدون كود')+'</div>'+
       (p.size?'<div class="meta">القياس: '+esc(p.size)+'</div>':'')+
@@ -142,7 +144,8 @@ function render(){
       '<button class="reserveBtn '+(chosen?'selected':'')+'" onclick="toggleSelected('+idx+',event)">'+(chosen?'✓ تمت الإضافة للحجز':'🛒 حجز القطعة')+'</button>'+
       '</div></article>';
   }).join('');
-  renderPager(totalUnique);
+	  renderPager(totalUnique);
+	  warmImages(uniqueList.slice(start+pageSize,start+pageSize+8));
   updateSelectionBar();
 }
 function openModal(index){const p=products[index];if(!p)return;const pics=(p.images||[]).map(image);document.getElementById('detail').innerHTML='<div class="detail"><img class="hero" src="'+(pics[0]||'')+'" alt="'+esc(p.code)+'"><h2>'+esc(p.code)+'</h2><p>'+esc(category(p))+(p.size?' — القياس '+esc(p.size):'')+'</p>'+(p.price?'<p><b>'+money(p.price)+'</b></p>':'')+'<div class="gallery">'+pics.map(u=>'<img src="'+u+'" loading="lazy">').join('')+'</div><div class="actions"><button class="action save" onclick="saveImage(\''+(pics[0]||'')+'\')">حفظ الصورة</button><button class="action reserve" onclick="reserve(\''+esc(p.code)+'\')">حجز المنتج</button></div>'+(settings.instagram?'<a class="fb" href="'+esc(settings.instagram)+'" target="_blank">حساب VIOLET للتسوق الإلكتروني على إنستغرام</a>':'')+'</div>';document.getElementById('modal').style.display='block';document.body.style.overflow='hidden'}
